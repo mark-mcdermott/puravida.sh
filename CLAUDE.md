@@ -78,6 +78,10 @@ colours, so the dark theme is one block of overrides.
   reason.
 - **Flex/grid children default to `min-width: auto`** and will not shrink below their content,
   which is what pushed the mobile layout 37px wide. `min-w-0` on the shrinkable child.
+- **`astro preview` daemonizes** — it prints, exits 0, and keeps serving. Playwright's
+  built-in `webServer` reads that exit as a crash, so the server is started and
+  stopped in `tests/global-setup.ts` / `global-teardown.ts` instead. There is no
+  foreground flag; `--background` is the default now.
 - The island is **460×510 — there is no higher-resolution original**. It renders at 260px
   CSS (~1.45x, not true retina). A vector or hi-res redo is the highest-leverage brand fix.
 
@@ -108,7 +112,17 @@ Three VHS traps, all of which cost real time:
 - **`Output "frames/"` fails if the directory already exists** — silently, exit 0.
   `build-demo.mjs` renders into a fresh temp dir for this reason.
 
+## Domains
+
+`puravida.sh` is the canonical host and `www` 308-redirects to it. That has to stay
+matched to `site` in `astro.config.mjs`, which feeds `<link rel="canonical">`,
+`og:url`, and both the sitemap and `public/robots.txt`. If the primary domain is
+ever flipped in Vercel, change `site` in the same commit.
+
+The GitHub repo is connected to the Vercel project, so a push to `main` deploys —
+which is what makes the sync workflow reach production.
+
 ## Outstanding
 
-- Nothing blocking. The `repository_dispatch` step is wired into the CLI repo's
-  release workflow; it needs a `SITE_DISPATCH_TOKEN` secret there (see below).
+- The `repository_dispatch` step is wired into the CLI repo's release workflow; it
+  needs a `SITE_DISPATCH_TOKEN` secret there with write access to this repo.

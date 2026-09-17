@@ -101,6 +101,15 @@ test('the install command is on the copy button', async ({ page }) => {
   await expect(button).toHaveAttribute('data-command', /^brew install /)
 })
 
+test('robots.txt points at the sitemap on the canonical host', async ({ page }) => {
+  const res = await page.request.get('/robots.txt')
+  expect(res.status()).toBe(200)
+  const body = await res.text()
+  // The canonical host here must match astro.config's `site`, or the sitemap
+  // reference and the page's own <link rel="canonical"> disagree.
+  expect(body).toContain('Sitemap: https://puravida.sh/sitemap-index.xml')
+})
+
 test('no console errors', async ({ page }) => {
   const errors: string[] = []
   // Vercel's analytics and speed-insights scripts are served by the platform,

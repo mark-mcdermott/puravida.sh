@@ -1,21 +1,16 @@
 import { defineConfig, devices } from '@playwright/test'
-
-const PORT = 4332
-const baseURL = `http://localhost:${PORT}`
+import { baseURL } from './tests/server-config'
 
 export default defineConfig({
   testDir: './tests',
+  testMatch: /.*\.spec\.ts/,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL, trace: 'on-first-retry' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  // Tests run against the built output, not the dev server — that is what ships.
-  webServer: {
-    command: `pnpm astro preview --port ${PORT}`,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-  },
+  // Not `webServer`: astro preview daemonizes, which Playwright reads as a crash.
+  globalSetup: './tests/global-setup.ts',
+  globalTeardown: './tests/global-teardown.ts',
 })
