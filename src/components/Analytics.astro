@@ -1,0 +1,23 @@
+---
+/**
+ * Vercel Analytics and Speed Insights — production only, so a local machine
+ * never reports meaningless figures. Both are cookieless, so there is nothing
+ * to ask consent for.
+ */
+const enabled = import.meta.env.PROD
+---
+
+{
+  enabled && (
+    <>
+      <script>
+        import { inject } from '@vercel/analytics'
+        inject()
+      </script>
+      <script>
+        import { injectSpeedInsights } from '@vercel/speed-insights'
+        injectSpeedInsights()
+      </script>
+    </>
+  )
+}

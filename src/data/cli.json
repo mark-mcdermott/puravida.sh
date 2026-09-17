@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-09-17T15:45:07.190Z",
+  "ref": "v2.1.1",
+  "version": "2.1.1",
+  "repo": "mark-mcdermott/puravida",
+  "options": [
+    {
+      "flag": "`-f`, `--file`",
+      "description": "Treat dotless names as files (e.g. `Makefile`, `LICENSE`)"
+    },
+    {
+      "flag": "`-h`, `--help`",
+      "description": "Show usage and exit"
+    },
+    {
+      "flag": "`--version`",
+      "description": "Show the version and exit"
+    }
+  ],
+  "exitCodes": [
+    {
+      "code": "0",
+      "meaning": "Success"
+    },
+    {
+      "code": "1",
+      "meaning": "A runtime error (e.g. a file or directory could not be created)"
+    },
+    {
+      "code": "2",
+      "meaning": "A usage error (no arguments, an unknown option, or `~~` with no preceding file)"
+    }
+  ],
+  "usage": [
+    {
+      "command": "puravida notes.txt",
+      "creates": "file `notes.txt`"
+    },
+    {
+      "command": "puravida notes",
+      "creates": "directory `notes/`"
+    },
+    {
+      "command": "puravida src/app.js",
+      "creates": "`src/` + file `app.js`"
+    },
+    {
+      "command": "puravida a.txt b.txt",
+      "creates": "files `a.txt` and `b.txt`"
+    },
+    {
+      "command": "puravida assets/",
+      "creates": "empty directory `assets/`"
+    },
+    {
+      "command": "puravida my.dir/",
+      "creates": "directory `my.dir/` — trailing `/` beats the dot"
+    },
+    {
+      "command": "puravida -f Makefile",
+      "creates": "file `Makefile` — `-f` forces a dotless file"
+    },
+    {
+      "command": "puravida logs/api.v2/x.txt",
+      "creates": "`logs/` + `api.v2/` dirs + file `x.txt`"
+    },
+    {
+      "command": "puravida docs/ intro.md api.md",
+      "creates": "`docs/` containing `intro.md` and `api.md`"
+    },
+    {
+      "command": "puravida .claude/ settings.json cmds/x.md",
+      "creates": "`.claude/` with `settings.json` and `cmds/x.md`"
+    },
+    {
+      "command": "puravida notes.txt ~~ hello world",
+      "creates": "`notes.txt` containing `hello world`"
+    },
+    {
+      "command": "puravida a.txt b.txt ~~ hi",
+      "creates": "`a.txt` empty, `b.txt` containing `hi`"
+    },
+    {
+      "command": "puravida notes.txt ~",
+      "creates": "`notes.txt` from multi-line input (ends on a lone `~`)"
+    }
+  ],
+  "replaces": {
+    "beforeInline": "mkdir -p folder\necho \"hi\" > folder/file.txt",
+    "afterInline": "puravida folder/file.txt ~~ hi",
+    "beforeHeredoc": "mkdir -p folder\ncat > folder/file.txt << 'END'\nfirst line\nsecond line\nEND",
+    "afterHeredoc": "puravida folder/file.txt ~\nfirst line\nsecond line\n~"
+  },
+  "changelog": [
+    {
+      "title": "[2.1.1] - 2026-06-15",
+      "body": "### Fixed\n- Leading-dash paths after `--` now work (e.g. `puravida -- -weird.txt`); `mkdir`,\n  `touch`, and `dirname` are invoked with `--` so the name isn't parsed as options."
+    },
+    {
+      "title": "[2.1.0] - 2026-06-15",
+      "body": "### Added\n- `make install-user` / `make uninstall-user` for a per-user install under\n  `~/.local` (no `sudo`). The README now leads with this; `sudo make install`\n  remains the system-wide option.\n\n### Changed\n- A `~~word` argument (the content marker with no following space) now exits\n  with a hint instead of silently creating a directory named `~~word`.\n- Renamed \"paste mode\" to \"multiline mode\" across the docs, help text, and the\n  `~`-with-no-file error message."
+    },
+    {
+      "title": "[2.0.0] - 2026-06-14",
+      "body": "### Changed\n- **BREAKING:** Redesigned the argument grammar.\n  - Inline content now requires a `~~` marker — `puravida notes.txt ~~ hello`\n    (previously `puravida notes.txt \"hello\"`). Content is everything after the\n    first `~~`, joined with spaces, and attaches to the most recently named file.\n  - Multiple paths each create their own file (dotted leaf) or directory\n    (dotless leaf), so `puravida a.txt b.txt` now creates two files (previously\n    it wrote `b.txt` into `a.txt`).\n  - A trailing `/` forces a directory, even on a dotted leaf (`puravida .claude/`).\n  - A leading directory still contains the paths named after it, now supporting\n    nested sub-paths with auto-created parents\n    (`puravida .claude/ settings.json commands/cmd.md`).\n- Standardized the `--help` output to the conventional `Usage:` / `Options:` /\n  `Examples:` layout, and removed the emoji from it.\n- Usage errors (no arguments, an unknown option, or `~~` with no preceding file)\n  exit with code `2`.\n\n### Added\n- `-f`/`--file` flag to force dotless names (e.g. `Makefile`, `LICENSE`) to be files.\n- Optional `make install-pv` target that symlinks `pv` → `puravida`.\n- A `man` page (`man/puravida.1`), installed by `make install`.\n- Synopsis, Options, and Exit status sections in the README.\n- Unknown options are now rejected with a clear error.\n\n### Removed\n- Inline content without the `~~` marker (quoted or bare) — see the BREAKING note.\n  There is intentionally no `-d` flag; a trailing `/` forces a directory inline."
+    }
+  ]
+}

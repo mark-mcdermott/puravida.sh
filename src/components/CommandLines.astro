@@ -1,0 +1,22 @@
+---
+import { terminalLines } from '@lib/md'
+
+interface Props {
+  block: string
+  /** Muted renders the "before" sample — present, but visibly the worse option. */
+  muted?: boolean
+}
+
+const { block, muted = false } = Astro.props
+const rows = terminalLines(block)
+---
+
+{/* Each row is a single source line on purpose: inside a whitespace-preserving
+    element, a prettier-style line break would render as real indentation. */}
+<div class:list={['font-mono', muted && 'text-foam-soft']}>
+  {
+    rows.map(({ text, isCommand }) => (
+      <div class="whitespace-pre"><span aria-hidden="true" class:list={['select-none', muted ? 'text-foam-soft/60' : 'text-palm']}>{isCommand && text.trim() !== '' ? '$ ' : '  '}</span>{text === '' ? ' ' : text}</div>
+    ))
+  }
+</div>

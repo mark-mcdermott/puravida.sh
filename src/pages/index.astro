@@ -1,0 +1,309 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '@layouts/Layout.astro'
+import Terminal from '@components/Terminal.astro'
+import CommandLines from '@components/CommandLines.astro'
+import CopyCommand from '@components/CopyCommand.astro'
+import ThemeToggle from '@components/ThemeToggle.astro'
+import island from '@assets/island.png'
+import cli from '@data/cli.json'
+import { inlineCode } from '@lib/md'
+
+const BREW = 'brew install mark-mcdermott/tap/puravida'
+const repo = `https://github.com/${cli.repo}`
+
+const nav = [
+  { href: '#why', label: 'Why' },
+  { href: '#demo', label: 'Demo' },
+  { href: '#usage', label: 'Usage' },
+  { href: '#install', label: 'Install' },
+]
+
+const comparisons = [
+  {
+    title: 'A file in a folder that does not exist yet',
+    before: cli.replaces.beforeInline,
+    after: cli.replaces.afterInline,
+  },
+  {
+    title: 'Multi-line content, without the here-doc',
+    before: cli.replaces.beforeHeredoc,
+    after: cli.replaces.afterHeredoc,
+  },
+]
+---
+
+<Layout
+  title="puravida — create files and directories in one command"
+  description="A tiny Bash script that replaces mkdir -p, touch, and here-documents. Parent directories are created as needed."
+>
+  <header
+    class="sticky top-0 z-40 border-b border-[var(--rule)] bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur"
+  >
+    <div class="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:gap-6">
+      <a href="#top" class="shrink-0 font-display text-lg font-bold tracking-tight text-[var(--fg)]">
+        puravida<span class="font-mono text-sm font-normal text-[var(--fg-soft)]">.sh</span>
+      </a>
+
+      <nav aria-label="Sections" class="ml-auto hidden items-center gap-6 md:flex">
+        {
+          nav.map(({ href, label }) => (
+            <a
+              href={href}
+              class="text-sm text-[var(--fg-soft)] transition hover:text-[var(--link)]"
+            >
+              {label}
+            </a>
+          ))
+        }
+      </nav>
+
+      <a
+        href={`${repo}/releases/latest`}
+        class="hidden shrink-0 rounded-full border border-[var(--rule)] px-2.5 py-1 font-mono text-xs text-[var(--fg-soft)] transition hover:border-[var(--link)] hover:text-[var(--link)] sm:inline-block"
+      >
+        v{cli.version}
+      </a>
+      <a
+        href={repo}
+        class="shrink-0 text-sm text-[var(--fg-soft)] transition hover:text-[var(--link)]"
+        aria-label="puravida on GitHub"
+      >
+        GitHub
+      </a>
+      <ThemeToggle />
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero: the waterline. A sunlit panel holding the island, the dark
+         terminal below it — the same split the illustration's own cube makes. -->
+    <section id="top" class="mx-auto max-w-6xl px-5 pb-20 pt-14 md:pt-20">
+      <div class="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,380px)]">
+        <div class="min-w-0">
+          <h1 class="max-w-[16ch] text-balance font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl">
+            Create files and directories in one command.
+          </h1>
+          <p class="mt-5 max-w-lg text-lg leading-relaxed text-[var(--fg-soft)]">
+            <code class="whitespace-nowrap font-mono text-[0.95em] text-[var(--fg)]">puravida</code> is a tiny Bash script that replaces <code class="whitespace-nowrap font-mono text-[0.95em]">mkdir -p</code>, <code class="whitespace-nowrap font-mono text-[0.95em]">touch</code>, and here-documents. Parent directories are created as needed.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <CopyCommand command={BREW} class="w-full max-w-md" />
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--fg-soft)]">
+            <a href="#install" class="text-[var(--link)] underline-offset-4 hover:underline">
+              Other ways to install
+            </a>
+            <span>macOS and Linux</span>
+            <span>MIT licensed</span>
+          </div>
+        </div>
+
+        <!-- The panel stays warm in both themes: the artwork carries a baked
+             sunlit shadow, which only reads correctly on a light ground. -->
+        <div
+          class="relative grid place-items-center rounded-card border border-[#E8DCC4] bg-gradient-to-b from-[#FDF7EA] to-[#F2E6D0] p-8 shadow-[0_20px_45px_-24px_rgba(36,86,102,0.45)]"
+        >
+          <Image
+            src={island}
+            alt="A low-poly isometric island: stilt houses climbing a hillside above a cube of ocean, with a toucan and the word puravida overhead."
+            width={260}
+            densities={[1, 1.45]}
+            loading="eager"
+            class="h-auto w-[260px] max-w-full"
+          />
+        </div>
+      </div>
+
+      <Terminal label="bash" class="mt-14">
+        <div class="mb-3 font-mono text-xs uppercase tracking-widest text-foam-soft">
+          the usual way
+        </div>
+        <CommandLines block={cli.replaces.beforeInline} muted />
+        <div class="my-4 h-px bg-[var(--terminal-border)]"></div>
+        <div class="mb-3 font-mono text-xs uppercase tracking-widest text-terracotta">
+          with puravida
+        </div>
+        <CommandLines block={cli.replaces.afterInline} />
+      </Terminal>
+    </section>
+
+    <section id="why" class="border-y border-[var(--rule)] bg-[var(--bg-alt)]">
+      <div class="mx-auto max-w-6xl px-5 py-20">
+        <h2 class="font-display text-3xl font-bold tracking-tight md:text-4xl">
+          Two commands, or one.
+        </h2>
+        <p class="mt-3 max-w-2xl text-[var(--fg-soft)]">
+          Every example on this page is pulled from the CLI's own README at{' '}
+          <a href={`${repo}/releases/tag/${cli.ref}`} class="text-[var(--link)] underline-offset-4 hover:underline">{cli.ref}</a>, so the site can't drift from the tool.
+        </p>
+
+        <div class="mt-10 grid gap-6 lg:grid-cols-2">
+          {
+            comparisons.map(({ title, before, after }) => (
+              <div>
+                <h3 class="mb-3 text-sm font-semibold text-[var(--fg)]">{title}</h3>
+                <Terminal>
+                  <CommandLines block={before} muted />
+                  <div class="my-4 h-px bg-[var(--terminal-border)]" />
+                  <CommandLines block={after} />
+                </Terminal>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="mx-auto max-w-6xl px-5 py-20">
+      <h2 class="font-display text-3xl font-bold tracking-tight md:text-4xl">See it run.</h2>
+      <p class="mt-3 max-w-2xl text-[var(--fg-soft)]">
+        The whole feature tour — files and directories, many paths at once, inline and multi-line content, and the <code class="whitespace-nowrap font-mono text-[0.95em]">-f</code> flag.
+      </p>
+
+      <figure class="mt-8">
+        <div class="overflow-hidden rounded-card border border-ocean-line shadow-[0_24px_50px_-20px_rgba(14,42,52,0.6)]">
+          <img
+            src="/media/demo.gif"
+            width="1040"
+            height="680"
+            loading="lazy"
+            decoding="async"
+            alt="A terminal session creating nested files and directories with single puravida commands."
+            class="block h-auto w-full"
+          />
+        </div>
+        <figcaption class="mt-3 text-sm text-[var(--fg-soft)]">
+          Prefer video?{' '}
+          <a href="https://youtu.be/qqMrRBFa2e4" class="text-[var(--link)] underline-offset-4 hover:underline">Watch the walkthrough on YouTube.</a>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="usage" class="border-y border-[var(--rule)] bg-[var(--bg-alt)]">
+      <div class="mx-auto max-w-6xl px-5 py-20">
+        <h2 class="font-display text-3xl font-bold tracking-tight md:text-4xl">Every form.</h2>
+        <p class="mt-3 max-w-2xl text-[var(--fg-soft)]">
+          A dot in the final path segment makes a file, no dot makes a directory. A trailing slash always wins, and <code class="whitespace-nowrap font-mono text-[0.95em]">-f</code> forces a dotless name to be a file.
+        </p>
+
+        <div class="mt-8 overflow-x-auto rounded-card border border-[var(--rule)] bg-[var(--surface)]">
+          <table class="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr class="border-b border-[var(--rule)]">
+                <th scope="col" class="px-5 py-3 font-semibold">Command</th>
+                <th scope="col" class="px-5 py-3 font-semibold">Creates</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                cli.usage.map(({ command, creates }) => (
+                  <tr class="border-b border-[var(--rule)] last:border-0">
+                    <td class="whitespace-nowrap px-5 py-3 font-mono text-[13px] text-[var(--fg)]">
+                      {command}
+                    </td>
+                    <td
+                      class="px-5 py-3 text-[var(--fg-soft)]"
+                      set:html={inlineCode(creates)}
+                    />
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-8 grid gap-6 md:grid-cols-2">
+          <div class="rounded-card border border-[var(--rule)] bg-[var(--surface)] p-5">
+            <h3 class="mb-3 font-display text-lg font-bold">Options</h3>
+            <dl class="space-y-2.5 text-sm">
+              {
+                cli.options.map(({ flag, description }) => (
+                  <div class="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-3">
+                    <dt class="font-mono text-[13px]" set:html={inlineCode(flag)} />
+                    <dd class="text-[var(--fg-soft)]" set:html={inlineCode(description)} />
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+
+          <div class="rounded-card border border-[var(--rule)] bg-[var(--surface)] p-5">
+            <h3 class="mb-3 font-display text-lg font-bold">Exit status</h3>
+            <dl class="space-y-2.5 text-sm">
+              {
+                cli.exitCodes.map(({ code, meaning }) => (
+                  <div class="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-3">
+                    <dt class="font-mono text-[13px]">{code}</dt>
+                    <dd class="text-[var(--fg-soft)]" set:html={inlineCode(meaning)} />
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="mx-auto max-w-6xl px-5 py-20">
+      <h2 class="font-display text-3xl font-bold tracking-tight md:text-4xl">Install it.</h2>
+      <p class="mt-3 max-w-2xl text-[var(--fg-soft)]">
+        Runs on macOS and Linux. Multi-line mode uses portable <code class="whitespace-nowrap font-mono text-[0.95em]">sed</code>, and CI exercises the suite on both.
+      </p>
+
+      <div class="mt-10 space-y-8">
+        <div>
+          <h3 class="font-display text-lg font-bold">Homebrew</h3>
+          <p class="mb-3 mt-1 text-sm text-[var(--fg-soft)]">
+            Then <code class="whitespace-nowrap font-mono text-[0.95em]">brew upgrade puravida</code> updates it.
+          </p>
+          <CopyCommand command={BREW} class="max-w-xl" />
+        </div>
+
+        <div>
+          <h3 class="font-display text-lg font-bold">From source, per user</h3>
+          <p class="mb-3 mt-1 text-sm text-[var(--fg-soft)]">
+            Installs under <code class="whitespace-nowrap font-mono text-[0.95em]">~/.local</code> — no <code class="whitespace-nowrap font-mono text-[0.95em]">sudo</code>. Make sure <code class="whitespace-nowrap font-mono text-[0.95em]">~/.local/bin</code> is on your <code class="whitespace-nowrap font-mono text-[0.95em]">PATH</code>.
+          </p>
+          <Terminal label="bash" class="max-w-xl">
+            <CommandLines
+              block={`git clone ${repo}.git\ncd puravida\nmake install-user`}
+            />
+          </Terminal>
+        </div>
+
+        <div>
+          <h3 class="font-display text-lg font-bold">The <code class="whitespace-nowrap font-mono text-[0.95em]">pv</code> shortcut</h3>
+          <p class="mb-3 mt-1 text-sm text-[var(--fg-soft)]">
+            Symlinks a two-letter <code class="whitespace-nowrap font-mono text-[0.95em]">pv</code> alongside the install. Note it shadows the <a href="https://www.ivarch.com/programs/pv.shtml" class="text-[var(--link)] underline-offset-4 hover:underline">pipe viewer</a> if you have that.
+          </p>
+          <CopyCommand command="make install-pv" class="max-w-xl" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--rule)]">
+    <div
+      class="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 text-sm text-[var(--fg-soft)] sm:flex-row sm:items-center"
+    >
+      <div class="rule-gold w-16" aria-hidden="true"></div>
+      <p>
+        <span class="font-display font-bold text-[var(--fg)]">puravida</span> v{cli.version} — MIT
+        licensed. Created by
+        <a href="https://markmcdermott.io" class="text-[var(--link)] underline-offset-4 hover:underline">
+          Mark McDermott
+        </a>.
+      </p>
+      <nav aria-label="Project links" class="flex gap-5 sm:ml-auto">
+        <a href={repo} class="transition hover:text-[var(--link)]">Source</a>
+        <a href={`${repo}/releases`} class="transition hover:text-[var(--link)]">Releases</a>
+        <a href={`${repo}/blob/main/CHANGELOG.md`} class="transition hover:text-[var(--link)]">
+          Changelog
+        </a>
+      </nav>
+    </div>
+  </footer>
+</Layout>

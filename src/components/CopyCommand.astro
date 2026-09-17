@@ -1,0 +1,46 @@
+---
+interface Props {
+  command: string
+  class?: string
+}
+
+const { command, class: className = '' } = Astro.props
+---
+
+<div
+  class:list={[
+    'flex items-center gap-3 rounded-full border border-[var(--rule)] bg-[var(--surface)] py-2 pl-5 pr-2',
+    className,
+  ]}
+>
+  {/* min-w-0 lets this shrink below its content so its own overflow-x-auto scrolls
+     instead of the flex item forcing the whole pill (and the page) wider. */}
+  <code class="min-w-0 overflow-x-auto whitespace-nowrap font-mono text-[13px] text-[var(--fg)]">{command}</code>
+  <button
+    type="button"
+    class="copy-command shrink-0 rounded-full px-3 py-1.5 font-mono text-xs font-medium text-[var(--fg-soft)] transition hover:bg-[color-mix(in_srgb,var(--fg)_8%,transparent)] hover:text-[var(--fg)]"
+    data-command={command}
+    aria-live="polite"
+    aria-label={`Copy "${command}" to the clipboard`}
+  >
+    copy
+  </button>
+</div>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.copy-command')) {
+    button.addEventListener('click', async () => {
+      const command = button.dataset.command
+      if (!command) return
+      try {
+        await navigator.clipboard.writeText(command)
+        button.textContent = 'copied'
+      } catch {
+        button.textContent = 'press ⌘C'
+      }
+      setTimeout(() => {
+        button.textContent = 'copy'
+      }, 1800)
+    })
+  }
+</script>

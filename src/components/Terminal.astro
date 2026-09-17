@@ -1,0 +1,27 @@
+---
+interface Props {
+  label?: string
+  class?: string
+}
+
+const { label = 'bash', class: className = '' } = Astro.props
+---
+
+<div
+  class:list={[
+    'overflow-hidden rounded-card border border-[var(--terminal-border)] bg-[var(--terminal-bg)]',
+    'shadow-[0_24px_50px_-20px_rgba(14,42,52,0.6)]',
+    className,
+  ]}
+>
+  <div class="flex items-center gap-2 border-b border-[var(--terminal-border)] px-4 py-2.5">
+    {/* The island's own red, yellow and green — the window chrome is brand, not stock. */}
+    <span class="size-2.5 rounded-full bg-terracotta"></span>
+    <span class="size-2.5 rounded-full bg-gold"></span>
+    <span class="size-2.5 rounded-full bg-palm"></span>
+    <span class="ml-2 font-mono text-xs tracking-wide text-foam-soft">{label}</span>
+  </div>
+  <div class="overflow-x-auto px-5 py-4 font-mono text-[13.5px] leading-[1.75] text-foam">
+    <slot />
+  </div>
+</div>
