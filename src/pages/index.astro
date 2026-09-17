@@ -164,20 +164,30 @@ const comparisons = [
       </p>
 
       <figure class="mt-8">
-        <div class="overflow-hidden rounded-card border border-ocean-line shadow-[0_24px_50px_-20px_rgba(14,42,52,0.6)]">
-          <img
-            src="/media/demo.gif"
-            width="1040"
-            height="680"
-            loading="lazy"
-            decoding="async"
-            alt="A terminal session creating nested files and directories with single puravida commands."
+        <div class="overflow-hidden rounded-card border border-[var(--terminal-border)] shadow-[0_24px_50px_-20px_rgba(14,42,52,0.6)]">
+          {/* Rendered from scripts/demo.tape by scripts/build-demo.mjs, in the
+              site's own palette. mp4 is listed first: here it is both smaller
+              than the webm and the more widely supported of the two. */}
+          <video
             class="block h-auto w-full"
-          />
+            width="1256"
+            height="494"
+            poster="/media/demo-poster.png"
+            preload="metadata"
+            autoplay
+            muted
+            loop
+            playsinline
+            controls
+            aria-label="A terminal session creating nested files and directories with single puravida commands, including inline and multi-line content."
+          >
+            <source src="/media/demo.mp4" type="video/mp4" />
+            <source src="/media/demo.webm" type="video/webm" />
+          </video>
         </div>
         <figcaption class="mt-3 text-sm text-[var(--fg-soft)]">
-          Prefer video?{' '}
-          <a href="https://youtu.be/qqMrRBFa2e4" class="text-[var(--link)] underline-offset-4 hover:underline">Watch the walkthrough on YouTube.</a>
+          There is a longer, narrated{' '}
+          <a href="https://youtu.be/qqMrRBFa2e4" class="text-[var(--link)] underline-offset-4 hover:underline">walkthrough on YouTube</a>.
         </figcaption>
       </figure>
     </section>
@@ -306,4 +316,14 @@ const comparisons = [
       </nav>
     </div>
   </footer>
+
+  <script>
+    // The reduced-motion CSS rule cannot stop a video that autoplays.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const video of document.querySelectorAll<HTMLVideoElement>('video[autoplay]')) {
+        video.removeAttribute('autoplay')
+        video.pause()
+      }
+    }
+  </script>
 </Layout>

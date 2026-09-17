@@ -86,6 +86,15 @@ test.describe('theme', () => {
   })
 })
 
+test('the demo is a video with both encodings and a poster', async ({ page }) => {
+  await page.goto('/')
+  const video = page.locator('#demo video')
+  await expect(video).toHaveAttribute('poster', /demo-poster\.png$/)
+  await expect(video).toHaveAttribute('muted', '')
+  await expect(video.locator('source[type="video/mp4"]')).toHaveCount(1)
+  await expect(video.locator('source[type="video/webm"]')).toHaveCount(1)
+})
+
 test('the install command is on the copy button', async ({ page }) => {
   await page.goto('/')
   const button = page.locator('.copy-command').first()

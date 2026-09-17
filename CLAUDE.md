@@ -81,11 +81,34 @@ colours, so the dark theme is one block of overrides.
 - The island is **460×510 — there is no higher-resolution original**. It renders at 260px
   CSS (~1.45x, not true retina). A vector or hi-res redo is the highest-leverage brand fix.
 
+## The demo video
+
+`public/media/demo.*` is generated from `scripts/demo.tape`:
+
+```bash
+pnpm build:demo
+```
+
+It is committed, and only needs regenerating when the CLI's behaviour changes.
+
+**VHS 0.12 cannot encode on this toolchain.** It records frames correctly, then
+exits 0 having produced no file and without ever invoking ffmpeg. So
+`scripts/build-demo.mjs` takes the frames and encodes them itself, which also
+lets us control padding — the window chrome is CSS, not baked into the video.
+
+Three VHS traps, all of which cost real time:
+
+- **ASCII only in a `Type` line.** One em dash silently scrambles that line and
+  every line after it (`the old — two commands` came out as `the old  two
+  commands … -pway`).
+- **No backticks or escape codes in a `Type` line.** A `PS1` built from
+  `\[\e[38;5;179m\]` got mangled and swallowed the following command, so `clear`
+  never ran and the hidden setup stayed on screen for the whole recording. The
+  prompt is now a plain `$`, which also matches the HTML terminal on the page.
+- **`Output "frames/"` fails if the directory already exists** — silently, exit 0.
+  `build-demo.mjs` renders into a fresh temp dir for this reason.
+
 ## Outstanding
 
-- `ffmpeg` is broken on the dev machine (`libx265.215.dylib` missing), so VHS cannot encode.
-  `scripts/hero.tape` is written, validated, and brand-themed but has **never rendered**. The
-  demo currently uses `public/media/demo.gif` — the old 1.7MB Catppuccin Mocha gif, which is
-  off-palette. Fix with `brew reinstall ffmpeg`, then `vhs scripts/hero.tape` and swap the
-  `<img>` in the demo section for a `<video>`.
-- Add the `repository_dispatch` step to the CLI repo's release workflow (see above).
+- Nothing blocking. The `repository_dispatch` step is wired into the CLI repo's
+  release workflow; it needs a `SITE_DISPATCH_TOKEN` secret there (see below).
