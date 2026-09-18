@@ -130,6 +130,16 @@ async function main() {
     /* first run */
   }
 
+  // `generatedAt` changes on every run, so writing unconditionally would defeat
+  // the workflow's "commit only if the CLI moved" guard and produce a junk
+  // commit — and a production deploy — on every nightly cron. Compare the
+  // meaningful content and leave the file alone when nothing actually moved.
+  const withoutTimestamp = ({ generatedAt, ...rest }) => JSON.stringify(rest)
+  if (previous && withoutTimestamp(previous) === withoutTimestamp(data)) {
+    console.log(`= ${REPO}@${ref} still v${version} — cli.json unchanged, not rewriting`)
+    return
+  }
+
   await writeFile(OUT, `${JSON.stringify(data, null, 2)}\n`)
   const moved = previous && previous.version !== version
   console.log(

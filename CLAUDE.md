@@ -28,6 +28,11 @@ people can actually install) and parses:
 | fenced blocks under `## What it replaces` | `replaces` |
 | `CHANGELOG.md` headings | `changelog` (`Unreleased` filtered out) |
 
+`generatedAt` is deliberately excluded from change detection: it moves on every
+run, so rewriting unconditionally would defeat the workflow's "commit only if the
+CLI moved" guard and land a junk commit — and a production deploy — every night.
+The sync leaves the file untouched when nothing meaningful changed.
+
 **Never hand-edit `src/data/cli.json`** — edit the CLI's README and re-sync. If the README's
 headings or tables are restructured, `pnpm sync` throws rather than emitting a half-empty
 page, and `.github/workflows/sync.yml` goes red. That failure is the feature.
