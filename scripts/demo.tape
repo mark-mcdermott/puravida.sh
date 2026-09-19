@@ -17,7 +17,7 @@ Set TypingSpeed 40ms
 Set Theme { "name": "puravida", "background": "#0E2A34", "foreground": "#E8E0D2", "cursor": "#E0B75C", "selection": "#1D4A59", "black": "#0A2029", "red": "#D9714F", "green": "#9FB07A", "yellow": "#E0B75C", "blue": "#5FA8C4", "magenta": "#C98BA0", "cyan": "#6FC5D4", "white": "#E8E0D2", "brightBlack": "#4A6672", "brightRed": "#E68B6B", "brightGreen": "#B4C495", "brightYellow": "#EFCD7E", "brightBlue": "#7FC0D8", "brightMagenta": "#DBA5B7", "brightWhite": "#FBF7EF" }
 
 Hide
-Type "export PATH=$HOME/.local/bin:$HOME/Dev/puravida-proj/puravida:/opt/homebrew/bin:/usr/bin:/bin"
+Type "export PATH=$HOME/.local/bin:$HOME/Dev/CLIs/puravida:/opt/homebrew/bin:/usr/bin:/bin"
 Enter
 Type "cd $(mktemp -d)"
 Enter
