@@ -73,40 +73,42 @@ test.describe('layout', () => {
   }
 })
 
-test.describe('the install command is never silently cut off', () => {
-  // The pill is narrower than the command on a phone. That is fine — it
-  // scrolls — but only if something shows there is more to reach, otherwise it
-  // reads as a truncated string and people copy half a command by eye.
-  for (const width of [320, 375]) {
-    test(`shows a scroll affordance at ${width}px`, async ({ page }) => {
+test.describe('the install command is never cut off', () => {
+  // The pill is narrower than the brew command on a phone. It wraps rather than
+  // scrolling: a scrolled line reads as truncated, because nothing shows there
+  // is more until you try, and the copy button sits over the cut.
+  const COMMAND = 'brew install mark-mcdermott/tap/puravida'
+
+  for (const width of [320, 375, 768, 1440]) {
+    test(`shows the whole command at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/')
       await page.evaluate(() => document.fonts.ready)
 
-      const code = page.locator('.command-text').first()
-      const state = await code.evaluate((el) => ({
-        overflowing: el.scrollWidth > el.clientWidth + 1,
-        more: el.getAttribute('data-more'),
-        tabindex: el.getAttribute('tabindex'),
+      const state = await page.locator('.command-text').first().evaluate((el) => ({
+        clippedHorizontally: el.scrollWidth > el.clientWidth + 1,
         text: el.textContent?.trim(),
       }))
 
-      expect(state.overflowing).toBe(true)
-      expect(state.more).toBe('end')
-      // Scrollable regions need to be reachable without a mouse.
-      expect(state.tabindex).toBe('0')
-      expect(state.text).toBe('brew install mark-mcdermott/tap/puravida')
+      expect(state.clippedHorizontally).toBe(false)
+      expect(state.text).toBe(COMMAND)
     })
   }
 
-  test('adds no affordance or tab stop when the command fits', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 })
-    await page.goto('/')
-    await page.evaluate(() => document.fonts.ready)
+  test('wraps onto another line rather than hiding the end', async ({ page }) => {
+    const heightAt = async (width: number) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await page.evaluate(() => document.fonts.ready)
+      return page
+        .locator('.command-text')
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().height)
+    }
 
-    const code = page.locator('.command-text').first()
-    await expect(code).not.toHaveAttribute('data-more', /.*/)
-    await expect(code).not.toHaveAttribute('tabindex', /.*/)
+    const wide = await heightAt(1440)
+    const narrow = await heightAt(320)
+    expect(narrow).toBeGreaterThan(wide)
   })
 })
 
