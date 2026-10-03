@@ -52,6 +52,64 @@ test.describe('layout', () => {
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1)
     })
   }
+
+  for (const width of [320, 375, 768, 1440]) {
+    test(`the sticky header does not cover the headline at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await page.evaluate(() => document.fonts.ready)
+
+      // Measured on a fresh load, so the page is genuinely at the top. The root
+      // sets scroll-behavior: smooth, so measuring after a programmatic scroll
+      // reads a position mid-flight and reports an overlap that is not there.
+      const { headerBottom, headlineTop, scrollY } = await page.evaluate(() => ({
+        headerBottom: document.querySelector('header')!.getBoundingClientRect().bottom,
+        headlineTop: document.querySelector('h1')!.getBoundingClientRect().top,
+        scrollY: window.scrollY,
+      }))
+      expect(scrollY).toBe(0)
+      expect(headlineTop).toBeGreaterThanOrEqual(headerBottom)
+    })
+  }
+})
+
+test.describe('the install command is never cut off', () => {
+  // The pill is narrower than the brew command on a phone. It wraps rather than
+  // scrolling: a scrolled line reads as truncated, because nothing shows there
+  // is more until you try, and the copy button sits over the cut.
+  const COMMAND = 'brew install mark-mcdermott/tap/puravida'
+
+  for (const width of [320, 375, 768, 1440]) {
+    test(`shows the whole command at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await page.evaluate(() => document.fonts.ready)
+
+      const state = await page.locator('.command-text').first().evaluate((el) => ({
+        clippedHorizontally: el.scrollWidth > el.clientWidth + 1,
+        text: el.textContent?.trim(),
+      }))
+
+      expect(state.clippedHorizontally).toBe(false)
+      expect(state.text).toBe(COMMAND)
+    })
+  }
+
+  test('wraps onto another line rather than hiding the end', async ({ page }) => {
+    const heightAt = async (width: number) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await page.evaluate(() => document.fonts.ready)
+      return page
+        .locator('.command-text')
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().height)
+    }
+
+    const wide = await heightAt(1440)
+    const narrow = await heightAt(320)
+    expect(narrow).toBeGreaterThan(wide)
+  })
 })
 
 test.describe('theme', () => {

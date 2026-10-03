@@ -9,13 +9,18 @@ const { command, class: className = '' } = Astro.props
 
 <div
   class:list={[
-    'flex items-center gap-3 rounded-full border border-[var(--rule)] bg-[var(--surface)] py-2 pl-5 pr-2',
+    'flex items-start gap-3 rounded-card border border-[var(--rule)] bg-[var(--surface)] py-2.5 pl-5 pr-2',
     className,
   ]}
 >
-  {/* min-w-0 lets this shrink below its content so its own overflow-x-auto scrolls
-     instead of the flex item forcing the whole pill (and the page) wider. */}
-  <code class="min-w-0 overflow-x-auto whitespace-nowrap font-mono text-[13px] text-[var(--fg)]">{command}</code>
+  {/* Wraps rather than scrolls. The pill is narrower than the install command on
+     a phone, and a scrolled line just reads as truncated — nothing shows there
+     is more until you try, and the copy button sits over the cut. skel.sh hit
+     this first and landed on wrapping; this matches it. */}
+  <code
+    class="command-text min-w-0 flex-1 py-0.5 font-mono text-[13px] leading-relaxed wrap-anywhere whitespace-pre-wrap text-[var(--fg)]"
+    >{command}</code
+  >
   <button
     type="button"
     class="copy-command shrink-0 rounded-full px-3 py-1.5 font-mono text-xs font-medium text-[var(--fg-soft)] transition hover:bg-[color-mix(in_srgb,var(--fg)_8%,transparent)] hover:text-[var(--fg)]"
