@@ -52,6 +52,62 @@ test.describe('layout', () => {
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1)
     })
   }
+
+  for (const width of [320, 375, 768, 1440]) {
+    test(`the sticky header does not cover the headline at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await page.evaluate(() => document.fonts.ready)
+
+      // Measured on a fresh load, so the page is genuinely at the top. The root
+      // sets scroll-behavior: smooth, so measuring after a programmatic scroll
+      // reads a position mid-flight and reports an overlap that is not there.
+      const { headerBottom, headlineTop, scrollY } = await page.evaluate(() => ({
+        headerBottom: document.querySelector('header')!.getBoundingClientRect().bottom,
+        headlineTop: document.querySelector('h1')!.getBoundingClientRect().top,
+        scrollY: window.scrollY,
+      }))
+      expect(scrollY).toBe(0)
+      expect(headlineTop).toBeGreaterThanOrEqual(headerBottom)
+    })
+  }
+})
+
+test.describe('the install command is never silently cut off', () => {
+  // The pill is narrower than the command on a phone. That is fine — it
+  // scrolls — but only if something shows there is more to reach, otherwise it
+  // reads as a truncated string and people copy half a command by eye.
+  for (const width of [320, 375]) {
+    test(`shows a scroll affordance at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/')
+      await page.evaluate(() => document.fonts.ready)
+
+      const code = page.locator('.command-text').first()
+      const state = await code.evaluate((el) => ({
+        overflowing: el.scrollWidth > el.clientWidth + 1,
+        more: el.getAttribute('data-more'),
+        tabindex: el.getAttribute('tabindex'),
+        text: el.textContent?.trim(),
+      }))
+
+      expect(state.overflowing).toBe(true)
+      expect(state.more).toBe('end')
+      // Scrollable regions need to be reachable without a mouse.
+      expect(state.tabindex).toBe('0')
+      expect(state.text).toBe('brew install mark-mcdermott/tap/puravida')
+    })
+  }
+
+  test('adds no affordance or tab stop when the command fits', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/')
+    await page.evaluate(() => document.fonts.ready)
+
+    const code = page.locator('.command-text').first()
+    await expect(code).not.toHaveAttribute('data-more', /.*/)
+    await expect(code).not.toHaveAttribute('tabindex', /.*/)
+  })
 })
 
 test.describe('theme', () => {
