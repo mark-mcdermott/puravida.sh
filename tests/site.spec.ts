@@ -168,6 +168,16 @@ test('robots.txt points at the sitemap on the canonical host', async ({ page }) 
   expect(body).toContain('Sitemap: https://puravida.sh/sitemap-index.xml')
 })
 
+test('inline links keep the space in front of them', async ({ page }) => {
+  await page.goto('/')
+  // Astro strips whitespace containing a newline next to an inline element, so
+  // an <a> or <code> on its own source line silently loses the space before it.
+  // This has now bitten twice: "README at`v2.1.1`" and "Created byMark McDermott".
+  const body = (await page.locator('body').innerText()).replace(/\s+/g, ' ')
+  expect(body).toContain('Created by Mark McDermott')
+  expect(body).toContain(`README at v${cli.version}`)
+})
+
 test('no console errors', async ({ page }) => {
   const errors: string[] = []
   // Vercel's analytics and speed-insights scripts are served by the platform,
